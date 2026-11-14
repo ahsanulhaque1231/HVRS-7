@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use HVRS-7, please cite it as below, together with the DriveAgent dataset."
+title: "HVRS-7: Human-Verified Road-Scene Marks for DriveAgent Route R1"
+type: dataset
+version: 1.0.0
+date-released: 2026-11-14
+license: CC-BY-4.0
+repository-code: "https://github.com/ahsanulhaque1231/HVRS-7"
+url: "https://github.com/ahsanulhaque1231/HVRS-7"
+abstract: >-
+  Human point and bounding-box annotations of seven road-scene classes, including
+  pedestrians, for 300 forward-camera frames of Route R1 of the public DriveAgent
+  dataset, with frame-level review and unclear flags, a frame index with checksums,
+  an offline annotation tool, and scripts.
+keywords:
+  - autonomous driving
+  - road-scene recognition
+  - human annotation
+  - pedestrian
+  - vision-language models
+  - DriveAgent
+authors:
+  - family-names: Haque
+    given-names: Ahsanul
+  - family-names: Sintheia
+    given-names: Tasnim Sultana
+  - family-names: Hasan
+    given-names: Khandaker Tabin
+  - family-names: Kaiser
+    given-names: M. Shamim
+references:
+  - type: article
+    title: "DriveAgent: Multi-Agent Structured Reasoning With LLM and Multimodal Sensor Fusion for Autonomous Driving"
+    authors:
+      - family-names: Hou
+        given-names: X.
+      - name: "et al."
+    journal: "IEEE Robotics and Automation Letters"
+    year: 2025
+    doi: 10.1109/LRA.2025.3619807
+  - type: dataset
+    title: "DriveAgent dataset"
+    authors:
+      - family-names: Hou
+        given-names: X.
+      - name: "et al."
+    year: 2025
+    url: "https://huggingface.co/datasets/Parechan/driveagent"

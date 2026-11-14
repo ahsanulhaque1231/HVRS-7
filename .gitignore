@@ -1,0 +1,7 @@
+# DriveAgent frames are downloaded with scripts/fetch_frames.py and are not redistributed here
+images/
+tool/images/
+*.jpg
+*_marks.png
+__pycache__/
+.DS_Store

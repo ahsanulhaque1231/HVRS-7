@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#11151c" />
+  <title>R1 · Visual Label Studio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><div class="brand-icon">⌖</div><div class="brand-text"><b>R1<span class="brand-rest"> / Visual Label Studio</span></b><small>Manual annotation workspace</small></div></div>
+      <div class="top-progress"><span class="progress-label" id="globalProgressLabel">0 / 300 reviewed</span><div class="progress-track"><div id="progressBar"></div></div></div>
+      <div class="top-actions">
+        <span class="saved-state" id="saveStatus"><span class="saved-dot"></span> Local autosave</span>
+        <button class="btn ghost" id="helpBtn" title="How to use">? <span class="optional">Guide</span></button>
+        <button class="btn accent" id="exportMenuBtn">Export <span class="caret">⌄</span></button>
+        <div class="menu export-menu hidden" id="exportMenu">
+          <button data-export="json"><b>Backup annotations (.json)</b><small>Restore and continue later</small></button>
+          <button data-export="csv"><b>Annotation table (.csv)</b><small>Points / boxes with coordinates</small></button>
+          <button data-export="frames"><b>Frame status (.csv)</b><small>Review and ambiguity status</small></button>
+          <button data-export="image"><b>This annotated image (.jpg)</b><small>Non-destructive labeled copy</small></button>
+          <button data-export="zip"><b>All reviewed images (.zip)</b><small>Annotated copies, includes empty frames</small></button>
+          <div class="menu-divider"></div>
+          <button id="importBtn"><b>Import annotation backup</b><small>Open a JSON exported by this app</small></button>
+        </div>
+      </div>
+    </header>
+
+    <aside class="frame-sidebar">
+      <div class="sidebar-title"><div><b>Frames</b><small>Route R1 · 300 images</small></div><button class="iconbtn" id="jumpBtn" title="Next frame not reviewed">↪</button></div>
+      <div class="searchwrap"><span>⌕</span><input id="frameSearch" type="search" placeholder="Find F042…" spellcheck="false"></div>
+      <div class="filter-row"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="todo">To review</button><button class="filter" data-filter="done">Reviewed</button><button class="filter" data-filter="unclear">Unclear</button></div>
+      <div class="frame-grid" id="frameGrid" aria-label="Choose image frame"></div>
+      <div class="legend"><div><span class="legend-dot filled"></span> Reviewed</div><div><span class="legend-dot partial"></span> Has annotations</div><div><span class="legend-dot empty"></span> Not started</div></div>
+    </aside>
+
+    <main class="viewer">
+      <div class="viewer-top">
+        <div class="frame-title"><button class="iconbtn" id="prevBtn" aria-label="Previous frame">‹</button><div><strong id="frameTitle">F001</strong><small id="frameSubtitle">Image 1 of 300</small></div><button class="iconbtn" id="nextBtn" aria-label="Next frame">›</button></div>
+        <div class="segmented"><button id="pointModeBtn" class="active" data-mode="point" title="Click to add a labeled point · Q"><span class="dot-symbol">●</span> Point</button><button id="boxModeBtn" data-mode="box" title="Drag to create a bounding box · B"><span>▣</span> Box</button></div>
+        <div class="viewer-tools"><button class="iconbtn" id="zoomOutBtn" title="Zoom out (−)">−</button><span id="zoomText">Fit</span><button class="iconbtn" id="zoomInBtn" title="Zoom in (+)">+</button><button class="btn compact ghost" id="fitBtn" title="Fit entire image · 0">Fit</button></div>
+      </div>
+      <div class="stage" id="stage" tabindex="0" aria-label="Annotate image">
+        <canvas id="canvas"></canvas>
+        <div class="loading-state" id="loadingState">Loading image…</div>
+        <div class="click-picker hidden" id="picker" role="dialog" aria-label="Select annotation class">
+          <div class="picker-head"><span id="pickerTitle">Choose label</span><button class="close-picker" id="closePicker" aria-label="Close">×</button></div>
+          <div id="pickerCategories"></div>
+          <div class="picker-bottom"><label><input type="checkbox" id="pickerUncertain"> <span>Uncertain object</span></label><button id="pickerDelete" class="delete-btn hidden">Delete point</button></div>
+        </div>
+        <div class="stage-hint" id="stageHint"><span class="hint-dot">●</span> Click an object to place a labeled point. Click a marker to edit.</div>
+        <div class="frame-watermark" id="frameWatermark">ORIGINAL IMAGE · NOT MODIFIED</div>
+      </div>
+      <div class="viewer-bottom">
+        <div class="statusbar"><span id="coordText">Position —</span><span id="objectCount">0 annotations</span><span id="modeHint" class="hint-secondary">Scroll to zoom · Space + drag to pan</span></div>
+        <div class="frame-actions"><button class="btn ghost compact" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶ Undo</button><button class="btn ghost compact" id="redoBtn" title="Redo (Ctrl+Y)" disabled>↷ Redo</button><button class="btn next" id="reviewBtn">✓ Mark reviewed</button></div>
+      </div>
+    </main>
+
+    <aside class="details-sidebar">
+      <div class="panel-section">
+        <div class="detail-title"><div><small>ACTIVE FRAME</small><h2 id="detailFrame">F001</h2></div><span class="state-tag" id="reviewState">Not reviewed</span></div>
+        <div class="detail-meta"><span id="dimensions">2448 × 2048 px</span><span>Original resolution</span></div>
+      </div>
+      <div class="panel-section categories-section">
+        <div class="section-head"><b>Categories</b><small>Shortcut keys 1–7</small></div>
+        <div id="categoryLegend"></div>
+      </div>
+      <div class="panel-section annotations-section">
+        <div class="section-head"><b>Annotations <span id="annotationCount" class="count-pill">0</span></b><button class="tiny-btn" id="deleteAllBtn" title="Clear annotations in current frame">Clear</button></div>
+        <div id="annotationsList" class="annotations-list"><div class="empty-list">Click an object to label it.</div></div>
+      </div>
+      <div class="panel-section">
+        <div class="section-head"><b>Frame review</b></div>
+        <label class="checkline"><input type="checkbox" id="unclearToggle"> <span>Some objects are unclear</span></label>
+        <label class="notes-label" for="notes">Notes <span>(optional)</span></label>
+        <textarea id="notes" rows="3" placeholder="E.g. tiny sign obscured by glare…"></textarea>
+      </div>
+      <details class="reference-panel" id="referenceDetails"><summary>Original human-verified labels <span id="referenceTag">(F001–F032)</span></summary><div id="referenceContent" class="reference-content"></div></details>
+      <div class="bottom-sidebar"><button id="nextUnreviewedBtn" class="btn block subtle">Next unreviewed frame →</button><span>100% offline · No external classifier, API, or upload</span></div>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop hidden" id="helpModal"><div class="modal"><button class="modal-close" id="closeHelp">×</button><div class="modal-kicker">QUICK GUIDE</div><h2>Click. Pick a class. Done.</h2><p>This is a <b>manual</b> annotation tool. No automatic detections or classifications are used.</p>
+   <div class="help-grid"><div><strong>1. Point mode</strong><p>Click an object, then select its class from the menu. Click the colored marker later to change its label, flag it uncertain, or delete it. Drag a point to reposition.</p></div><div><strong>2. Box mode</strong><p>Drag from one corner of an object to the other, then choose a class. Click any box to edit its label. Drag inside to move. Hold Shift while dragging to create a box inside an existing box.</p></div><div><strong>3. Review</strong><p>Mark each frame reviewed, including frames with no detectable objects. Notes and unclear status are saved with the frame.</p></div><div><strong>4. Export</strong><p>Download a JSON backup, point/box CSV, or a ZIP of labeled image copies. Your source JPEGs never change.</p></div></div>
+   <div class="shortcut-list"><kbd>1–7</kbd> choose class <kbd>Q</kbd> point <kbd>B</kbd> box <kbd>N / P</kbd> next / previous <kbd>0</kbd> fit <kbd>Ctrl+Z</kbd> undo <kbd>Space+drag</kbd> pan <kbd>Esc</kbd> dismiss</div>
+   <p class="warn-info"><b>Research note:</b> Point labels record object locations, not bounding boxes. Use Box mode for object-detection training coordinates. The first 32 verified CSV rows are visible as reference only; they do not create points or boxes.</p>
+   <button class="btn accent" id="startBtn">Start labeling</button></div></div>
+  <div class="toast hidden" id="toast" role="status"></div>
+  <input type="file" accept="application/json,.json" id="fileInput" class="hidden" />
+  <script src="verified_reference.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
